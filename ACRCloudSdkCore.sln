@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30128.74
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACRCloudSdkCore", "ACRCloudSdkCore\ACRCloudSdkCore.csproj", "{4744E731-E875-4077-A010-D0D4DA4E7032}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACRCloudSdkCore.Example", "ACRCloudSdkCore.Example\ACRCloudSdkCore.Example.csproj", "{BDEE6D75-809C-40F8-8C27-8284972B57D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4744E731-E875-4077-A010-D0D4DA4E7032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4744E731-E875-4077-A010-D0D4DA4E7032}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4744E731-E875-4077-A010-D0D4DA4E7032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4744E731-E875-4077-A010-D0D4DA4E7032}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDEE6D75-809C-40F8-8C27-8284972B57D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDEE6D75-809C-40F8-8C27-8284972B57D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDEE6D75-809C-40F8-8C27-8284972B57D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDEE6D75-809C-40F8-8C27-8284972B57D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {59FA0E04-6F8D-4C9F-8DF2-0226460E1F04}
+	EndGlobalSection
+EndGlobal
