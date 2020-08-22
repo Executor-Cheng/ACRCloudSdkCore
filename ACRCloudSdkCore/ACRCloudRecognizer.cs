@@ -30,9 +30,9 @@ namespace ACRCloudSdkCore
 
         private const string DefaultSignVersion = "1";
 
-        private static readonly StringContent DefaultDataTypeContent = CreateStringContent("data_type", DefaultDataType);
+        private static StringContent DefaultDataTypeContent => CreateStringContent("data_type", DefaultDataType);
 
-        private static readonly StringContent DefaultSignVersionContent = CreateStringContent("signature_version", DefaultSignVersion);
+        private static StringContent DefaultSignVersionContent => CreateStringContent("signature_version", DefaultSignVersion);
 
         private ACRCloudOptions Options { get; }
 
