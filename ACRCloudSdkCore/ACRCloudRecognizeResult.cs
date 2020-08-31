@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System.Text.Json;
 #endif
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1819 // Properties should not return arrays
 namespace ACRCloudSdkCore
 {

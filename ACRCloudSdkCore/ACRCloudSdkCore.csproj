@@ -6,10 +6,11 @@
     <LangVersion>preview</LangVersion>
     <RootNamespace>ACRCloudSdkCore</RootNamespace>
     <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
     <NoWin32Manifest>true</NoWin32Manifest>
-    <Version>1.0.0.1</Version>
-    <AssemblyVersion>1.0.0.1</AssemblyVersion>
-    <FileVersion>1.0.0.1</FileVersion>
+    <Version>1.0.0.2</Version>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
     <Authors>Executor</Authors>
     <Company>Executor</Company>
     <Copyright>Copyright © Executor 2020</Copyright>
@@ -33,6 +34,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>
