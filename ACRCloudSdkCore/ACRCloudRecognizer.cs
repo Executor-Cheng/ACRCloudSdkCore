@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using ACRCloudSdkCore.Extensions;
 #if NETSTANDARD2_0
 using Newtonsoft.Json.Linq;
 #else
@@ -16,7 +17,7 @@ using System.Text.Json;
 
 namespace ACRCloudSdkCore
 {
-    public class ACRCloudRecognizer
+    public class ACRCloudRecognizer : IDisposable
     {
         private const RecognizeType DefaultRecognizeType = RecognizeType.Audio;
 
@@ -36,10 +37,12 @@ namespace ACRCloudSdkCore
 
         private ACRCloudOptions Options { get; }
 
+        private HttpClient Client { get; } = new HttpClient();
+
         public ACRCloudRecognizer(ACRCloudOptions options)
             => Options = options;
 
-        public Task<ACRCloudRecognizeResult> RecognizeAsync(byte[] pcmBuffer, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeAsync(byte[] pcmBuffer, RecognizeType type = DefaultRecognizeType)
         {
             IEnumerable<HttpContent> getContents()
             {
@@ -56,31 +59,31 @@ namespace ACRCloudSdkCore
                     yield return CreateByteArrayContent("sample_hum", humming);
                 }
             }
-            Task<WebResponse> request = HttpHelper.HttpPostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
-            return CreateResultAsync(request);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
+            return CreateResultAsync(response);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(string filePath, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(filePath, default, type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(string filePath, TimeSpan startTime, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(filePath, startTime, TimeSpan.FromSeconds(ACRCloudExtractTools.DefaultDurationSeconds), type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(filePath, startTime, duration, false, type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(filePath, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold, type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB,
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB,
                                                                   int minFilterEnergy = DefaultMinFilterEnergy,
                                                                   int silenceEnergyThreshold = DefaultSilenceEnergyThreshold,
                                                                   float silenceRateThreshold = DefaultSilenceRateThreshold,
@@ -101,31 +104,31 @@ namespace ACRCloudSdkCore
                     yield return CreateByteArrayContent("sample_hum", humming);
                 }
             }
-            Task<WebResponse> request = HttpHelper.HttpPostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
-            return CreateResultAsync(request);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
+            return CreateResultAsync(response);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(byte[] fileBuffer, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(fileBuffer, default, type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(fileBuffer, startTime, TimeSpan.FromSeconds(ACRCloudExtractTools.DefaultDurationSeconds), type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(fileBuffer, startTime, duration, false, type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType)
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType)
         {
             return RecognizeByFileAsync(fileBuffer, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold, type);
         }
 
-        public Task<ACRCloudRecognizeResult> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB,
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB,
                                                                   int minFilterEnergy = DefaultMinFilterEnergy,
                                                                   int silenceEnergyThreshold = DefaultSilenceEnergyThreshold,
                                                                   float silenceRateThreshold = DefaultSilenceRateThreshold,
@@ -146,8 +149,8 @@ namespace ACRCloudSdkCore
                     yield return CreateByteArrayContent("sample_hum", humming);
                 }
             }
-            Task<WebResponse> request = HttpHelper.HttpPostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
-            return CreateResultAsync(request);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
+            return CreateResultAsync(response);
         }
 
         private IEnumerable<HttpContent> GetCommonContents()
@@ -162,33 +165,37 @@ namespace ACRCloudSdkCore
             yield return CreateStringContent("timestamp", timeStamp);
         }
 
-        private async Task<ACRCloudRecognizeResult> CreateResultAsync(Task<WebResponse> request)
+        private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> response) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
         {
 #if NETSTANDARD2_0
-            JObject root = await request.GetJsonAsync();
-            JToken status = root["status"];
-            switch (status["code"].ToObject<int>())
+            JObject root = (JObject)await response.GetJsonAsync();
+            JToken status = root["status"]!;
+            switch (status["code"]!.ToObject<int>())
             {
                 case 0:
                     {
-                        JToken metadata = root["metadata"],
-                               music = metadata["music"][0];
+                        JToken metadata = root["metadata"]!,
+                               music = metadata["music"]![0]!;
                         int? playOffset = music["play_offset_ms"]?.ToObject<int>(),
                              duration = music["duration_ms"]?.ToObject<int>();
                         return new ACRCloudRecognizeResult(
-                            music["acrid"].ToObject<string>(),
-                            music["title"].ToObject<string>(),
-                            music["artists"].Select(p => p["name"].ToObject<string>()).ToArray(),
-                            music["album"]["name"].ToObject<string>(),
+                            music["acrid"]!.ToObject<string>()!,
+                            music["title"]!.ToObject<string>()!,
+                            music["artists"]!.Select(p => p["name"]!.ToObject<string>()!).ToArray(),
+                            music["album"]!["name"]!.ToObject<string>()!,
                             playOffset.HasValue ? TimeSpan.FromMilliseconds(playOffset.Value) : default(TimeSpan?),
                             duration.HasValue ? TimeSpan.FromMilliseconds(duration.Value) : default(TimeSpan?),
-                            music["score"].ToObject<int>(),
-                            metadata["timestamp_utc"].ToObject<DateTime>().ToLocalTime(),
+                            music["score"]!.ToObject<int>(),
+                            metadata["timestamp_utc"]!.ToObject<DateTime>().ToLocalTime(),
                             root
                             );
                     }
 #else
-            JsonElement root = await request.GetPersistentJsonAsync(),
+#if NET5_0
+            JsonElement root = await response.ForceJson().GetObjectAsync<JsonElement>(),
+#else
+            JsonElement root = await response.GetObjectAsync<JsonElement>(),
+#endif
                         status = root.GetProperty("status");
             switch (status.GetProperty("code").GetInt32())
             {
@@ -197,14 +204,14 @@ namespace ACRCloudSdkCore
                         JsonElement metadata = root.GetProperty("metadata"),
                                     music = metadata.GetProperty("music")[0];
                         return new ACRCloudRecognizeResult(
-                            music.GetProperty("acrid").GetString(),
-                            music.GetProperty("title").GetString(),
-                            music.GetProperty("artists").EnumerateArray().Select(p => p.GetProperty("name").GetString()).ToArray(),
-                            music.GetProperty("album").GetProperty("name").GetString(),
+                            music.GetProperty("acrid").GetString()!,
+                            music.GetProperty("title").GetString()!,
+                            music.GetProperty("artists").EnumerateArray().Select(p => p.GetProperty("name").GetString()!).ToArray(),
+                            music.GetProperty("album").GetProperty("name").GetString()!,
                             music.TryGetProperty("play_offset_ms", out JsonElement playOffset) ? TimeSpan.FromMilliseconds(playOffset.GetInt32()) : default(TimeSpan?),
                             music.TryGetProperty("duration_ms", out JsonElement duration) ? TimeSpan.FromMilliseconds(duration.GetInt32()) : default(TimeSpan?),
                             music.GetProperty("score").GetInt32(),
-                            DateTime.Parse(metadata.GetProperty("timestamp_utc").GetString()).ToLocalTime(),
+                            DateTime.Parse(metadata.GetProperty("timestamp_utc").GetString()!).ToLocalTime(),
                             root
                             );
                     }
@@ -254,6 +261,12 @@ namespace ACRCloudSdkCore
                 Name = $"\"{name}\""
             };
             return sContent;
+        }
+
+        public void Dispose()
+        {
+            Client.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
