@@ -5,6 +5,9 @@
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 namespace ACRCloudSdkCore
 {
+    /// <summary>
+    /// Represents the audio type.
+    /// </summary>
     [Flags]
     public enum RecognizeType
     {

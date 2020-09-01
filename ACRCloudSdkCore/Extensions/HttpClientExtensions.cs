@@ -213,7 +213,7 @@ namespace ACRCloudSdkCore.Extensions
         public static async Task<JsonDocument> GetJsonAsync(this Task<HttpResponseMessage> responseTask, JsonDocumentOptions options, CancellationToken token = default)
         {
             using HttpResponseMessage response = await responseTask.ConfigureAwait(false);
-            Stream stream = await response.Content.ReadAsStreamAsync(token);
+            Stream stream = response.Content.ReadAsStream(token); // Since Content.ReadAsStreamAsync is returned synchronously.
             Encoding? encoding = GetEncoding(response.Content.Headers.ContentType?.CharSet);
             if (encoding != null && encoding != Encoding.UTF8)
             {
