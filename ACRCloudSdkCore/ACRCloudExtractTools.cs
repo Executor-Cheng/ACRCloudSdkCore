@@ -3,10 +3,14 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable CA1401 // P/Invokes should not be visible
 #pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 namespace ACRCloudSdkCore
 {
+    /// <summary>
+    /// This class contains methods that interop with libacrcloud_extr_tool.
+    /// </summary>
     public static unsafe class ACRCloudExtractTools
     {
         public const int DefaultMinFilterEnergy = 50;
@@ -370,7 +374,7 @@ namespace ACRCloudSdkCore
         {
             if (buffer == null || buffer.Length == 0)
             {
-                throw new ArgumentException();
+                throw new ArgumentException("Invalid audio data.");
             }
         }
 
@@ -379,7 +383,7 @@ namespace ACRCloudSdkCore
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("File path must not be null or empty.");
             }
             if (!File.Exists(filePath))
             {

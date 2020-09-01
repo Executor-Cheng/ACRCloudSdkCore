@@ -17,6 +17,9 @@ using System.Text.Json;
 
 namespace ACRCloudSdkCore
 {
+    /// <summary>
+    /// Provides ACRCloud audio identification implementation.
+    /// </summary>
     public class ACRCloudRecognizer : IDisposable
     {
         private const RecognizeType DefaultRecognizeType = RecognizeType.Audio;
@@ -31,9 +34,9 @@ namespace ACRCloudSdkCore
 
         private const string DefaultSignVersion = "1";
 
-        private static StringContent DefaultDataTypeContent => CreateStringContent("data_type", DefaultDataType);
+        private static readonly KeyValuePair<string?, string?> DefaultDataTypeContent = new KeyValuePair<string?, string?>("data_type", DefaultDataType);
 
-        private static StringContent DefaultSignVersionContent => CreateStringContent("signature_version", DefaultSignVersion);
+        private static readonly KeyValuePair<string?, string?> DefaultSignVersionContent = new KeyValuePair<string?, string?>("signature_version", DefaultSignVersion);
 
         private ACRCloudOptions Options { get; }
 
@@ -44,22 +47,23 @@ namespace ACRCloudSdkCore
 
         public Task<ACRCloudRecognizeResult?> RecognizeAsync(byte[] pcmBuffer, RecognizeType type = DefaultRecognizeType)
         {
-            IEnumerable<HttpContent> getContents()
+            IEnumerable<KeyValuePair<string?, string?>> getContents()
             {
                 if ((type & RecognizeType.Audio) != 0)
                 {
                     byte[] audio = ACRCloudExtractTools.CreateFingerprint(pcmBuffer);
-                    yield return CreateStringContent("sample_bytes", audio.Length.ToString());
-                    yield return CreateByteArrayContent("sample", audio);
+                    yield return new KeyValuePair<string?, string?>("sample_bytes", audio.Length.ToString());
+                    yield return new KeyValuePair<string?, string?>("sample", Convert.ToBase64String(audio));
                 }
                 if ((type & RecognizeType.Humming) != 0)
                 {
                     byte[] humming = ACRCloudExtractTools.CreateHummingFingerprint(pcmBuffer);
-                    yield return CreateStringContent("sample_hum_bytes", humming.Length.ToString());
-                    yield return CreateByteArrayContent("sample_hum", humming);
+                    yield return new KeyValuePair<string?, string?>("sample_hum_bytes", humming.Length.ToString());
+                    yield return new KeyValuePair<string?, string?>("sample_hum", Convert.ToBase64String(humming));
                 }
             }
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
+            FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content);
             return CreateResultAsync(response);
         }
 
@@ -89,22 +93,23 @@ namespace ACRCloudSdkCore
                                                                   float silenceRateThreshold = DefaultSilenceRateThreshold,
                                                                   RecognizeType type = DefaultRecognizeType)
         {
-            IEnumerable<HttpContent> getContents()
+            IEnumerable<KeyValuePair<string?, string?>> getContents()
             {
                 if ((type & RecognizeType.Audio) != 0)
                 {
                     byte[] audio = ACRCloudExtractTools.CreateFingerprintByFile(filePath, startTime, duration, isDB, minFilterEnergy, silenceEnergyThreshold, silenceRateThreshold);
-                    yield return CreateStringContent("sample_bytes", audio.Length.ToString());
-                    yield return CreateByteArrayContent("sample", audio);
+                    yield return new KeyValuePair<string?, string?>("sample_bytes", audio.Length.ToString());
+                    yield return new KeyValuePair<string?, string?>("sample", Convert.ToBase64String(audio));
                 }
                 if ((type & RecognizeType.Humming) != 0)
                 {
                     byte[] humming = ACRCloudExtractTools.CreateHummingFingerprintByFile(filePath, startTime, duration);
-                    yield return CreateStringContent("sample_hum_bytes", humming.Length.ToString());
-                    yield return CreateByteArrayContent("sample_hum", humming);
+                    yield return new KeyValuePair<string?, string?>("sample_hum_bytes", humming.Length.ToString());
+                    yield return new KeyValuePair<string?, string?>("sample_hum", Convert.ToBase64String(humming));
                 }
             }
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
+            FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content);
             return CreateResultAsync(response);
         }
 
@@ -134,35 +139,36 @@ namespace ACRCloudSdkCore
                                                                   float silenceRateThreshold = DefaultSilenceRateThreshold,
                                                                   RecognizeType type = DefaultRecognizeType)
         {
-            IEnumerable<HttpContent> getContents()
+            IEnumerable<KeyValuePair<string?, string?>> getContents()
             {
                 if ((type & RecognizeType.Audio) != 0)
                 {
                     byte[] audio = ACRCloudExtractTools.CreateFingerprintByFile(fileBuffer, startTime, duration, isDB, minFilterEnergy, silenceEnergyThreshold, silenceRateThreshold);
-                    yield return CreateStringContent("sample_bytes", audio.Length.ToString());
-                    yield return CreateByteArrayContent("sample", audio);
+                    yield return new KeyValuePair<string?, string?>("sample_bytes", audio.Length.ToString());
+                    yield return new KeyValuePair<string?, string?>("sample", Convert.ToBase64String(audio));
                 }
                 if ((type & RecognizeType.Humming) != 0)
                 {
                     byte[] humming = ACRCloudExtractTools.CreateHummingFingerprintByFile(fileBuffer, startTime, duration);
-                    yield return CreateStringContent("sample_hum_bytes", humming.Length.ToString());
-                    yield return CreateByteArrayContent("sample_hum", humming);
+                    yield return new KeyValuePair<string?, string?>("sample_hum_bytes", humming.Length.ToString());
+                    yield return new KeyValuePair<string?, string?>("sample_hum", Convert.ToBase64String(humming));
                 }
             }
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", getContents().Concat(GetCommonContents()));
+            FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content);
             return CreateResultAsync(response);
         }
 
-        private IEnumerable<HttpContent> GetCommonContents()
+        private IEnumerable<KeyValuePair<string?, string?>> GetCommonContents()
         {
             string timeStamp = ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000).ToString();
             using HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(Options.AccessSecret));
-            string signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes($"POST\n/v1/identify\n{Options.AccessKey}\n{DefaultDataType}\n{DefaultSignVersion}\n{timeStamp}")));
-            yield return CreateStringContent("access_key", Options.AccessKey);
+            string signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes($"POST\n/v2/identify\n{Options.AccessKey}\n{DefaultDataType}\n{DefaultSignVersion}\n{timeStamp}")));
+            yield return new KeyValuePair<string?, string?>("access_key", Options.AccessKey);
             yield return DefaultDataTypeContent;
             yield return DefaultSignVersionContent;
-            yield return CreateStringContent("signature", signature);
-            yield return CreateStringContent("timestamp", timeStamp);
+            yield return new KeyValuePair<string?, string?>("signature", signature);
+            yield return new KeyValuePair<string?, string?>("timestamp", timeStamp);
         }
 
         private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> response) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
@@ -191,11 +197,7 @@ namespace ACRCloudSdkCore
                             );
                     }
 #else
-#if NET5_0
-            JsonElement root = await response.ForceJson().GetObjectAsync<JsonElement>(),
-#else
             JsonElement root = await response.GetObjectAsync<JsonElement>(),
-#endif
                         status = root.GetProperty("status");
             switch (status.GetProperty("code").GetInt32())
             {
@@ -241,26 +243,6 @@ namespace ACRCloudSdkCore
 #endif
                     }
             }
-        }
-
-        private static ByteArrayContent CreateByteArrayContent(string name, byte[] buffer)
-        {
-            ByteArrayContent content = new ByteArrayContent(buffer);
-            content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-            {
-                Name = $"\"{name}\""
-            };
-            return content;
-        }
-
-        private static StringContent CreateStringContent(string name, string content)
-        {
-            StringContent sContent = new StringContent(content);
-            sContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-            {
-                Name = $"\"{name}\""
-            };
-            return sContent;
         }
 
         public void Dispose()
