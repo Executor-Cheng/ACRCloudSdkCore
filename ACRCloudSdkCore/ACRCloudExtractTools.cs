@@ -15,7 +15,7 @@ namespace ACRCloudSdkCore
     {
         public const int DefaultMinFilterEnergy = 50;
 
-        public const int DefaultSilenceEnergyThreshold = 100;
+        public const int DefaultSilenceEnergyThreshold = 50;
 
         public const float DefaultSilenceRateThreshold = 0.99f;
 
@@ -26,25 +26,18 @@ namespace ACRCloudSdkCore
             NativeMethods.Init();
         }
 
-        /// <summary>
-        /// Create ACRCloud Fingerprint by wav audio buffer(RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)
-        /// </summary>
-        /// <param name="pcmBuffer">A <see cref="byte"/>[] of wav audio</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+        /// <inheritdoc cref="CreateFingerprint(byte[], bool)"/>
         public static byte[] CreateFingerprint(byte[] pcmBuffer)
         {
             return CreateFingerprint(pcmBuffer, false);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by wav audio buffer(RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)
-        /// </summary>
-        /// <param name="pcmBuffer">A <see cref="byte"/>[] of wav audio</param>
-        /// <param name="isDB"><see langword="true"/> to create db frigerprint</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprint(byte[], bool, int, int, float)"/>
         public static byte[] CreateFingerprint(byte[] pcmBuffer, bool isDB)
         {
-            return CreateFingerprint(pcmBuffer, isDB);
+            return CreateFingerprint(pcmBuffer, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold);
         }
+
         /// <summary>
         /// Create ACRCloud Fingerprint by wav audio buffer(RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)
         /// </summary>
@@ -63,59 +56,42 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.CreateFingerprint(pcmBuffer, pcmBuffer.Length, isDB, minFilterEnergy, silenceEnergyThreshold, silenceRateThreshold, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(string, TimeSpan)"/>
         public static byte[] CreateFingerprintByFile(string filePath)
         {
             return CreateFingerprintByFile(filePath, default);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(string, TimeSpan, TimeSpan)"/>
         public static byte[] CreateFingerprintByFile(string filePath, TimeSpan startTime)
         {
             return CreateFingerprintByFile(filePath, startTime, TimeSpan.FromSeconds(DefaultDurationSeconds));
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(string, TimeSpan, TimeSpan, bool)"/>
         public static byte[] CreateFingerprintByFile(string filePath, TimeSpan startTime, TimeSpan duration)
         {
             return CreateFingerprintByFile(filePath, startTime, duration, false);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored</param>
-        /// <param name="isDB"><see langword="true"/> to create db frigerprint</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(string, TimeSpan, TimeSpan, bool, int, int, float)"/>
         public static byte[] CreateFingerprintByFile(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB)
         {
             return CreateFingerprintByFile(filePath, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold);
         }
+
         /// <summary>
         /// Create ACRCloud Fingerprint by file path of most audio/video file.
         /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored</param>
-        /// <param name="isDB"><see langword="true"/> to create db frigerprint</param>
-        /// <param name="minFilterEnergy"></param>
-        /// <param name="silenceEnergyThreshold"></param>
-        /// <param name="silenceRateThreshold"></param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file.</param>
+        /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored.</param>
+        /// <param name="isDB"><see langword="true"/> to create db frigerprint.</param>
+        /// <param name="minFilterEnergy">The minimum of filter energy.</param>
+        /// <param name="silenceEnergyThreshold">The silence energy threshold.</param>
+        /// <param name="silenceRateThreshold">The audio type.</param>
+        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint.</returns>
         public static byte[] CreateFingerprintByFile(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB,
                                                      int minFilterEnergy = DefaultMinFilterEnergy,
                                                      int silenceEnergyThreshold = DefaultSilenceEnergyThreshold,
@@ -125,48 +101,31 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.CreateFingerprint(filePath, (int)startTime.TotalSeconds, (int)duration.TotalSeconds, isDB, minFilterEnergy, silenceEnergyThreshold, silenceRateThreshold, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file buffer of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(byte[], TimeSpan)"/>
         public static byte[] CreateFingerprintByFile(byte[] fileBuffer)
         {
             return CreateFingerprintByFile(fileBuffer, default);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file buffer of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(byte[], TimeSpan, TimeSpan)"/>
         public static byte[] CreateFingerprintByFile(byte[] fileBuffer, TimeSpan startTime)
         {
             return CreateFingerprintByFile(fileBuffer, startTime, TimeSpan.FromSeconds(DefaultDurationSeconds));
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file buffer of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(byte[], TimeSpan, TimeSpan, bool)"/>
         public static byte[] CreateFingerprintByFile(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration)
         {
             return CreateFingerprintByFile(fileBuffer, startTime, duration, false);
         }
-        /// <summary>
-        /// Create ACRCloud Fingerprint by file buffer of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored</param>
-        /// <param name="isDB"><see langword="true"/> to create db frigerprint</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateFingerprintByFile(byte[], TimeSpan, TimeSpan, bool, int, int, float)"/>
         public static byte[] CreateFingerprintByFile(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB)
         {
             return CreateFingerprintByFile(fileBuffer, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold);
         }
+
         /// <summary>
         /// Create ACRCloud Fingerprint by file buffer of most audio/video file.
         /// </summary>
@@ -174,9 +133,9 @@ namespace ACRCloudSdkCore
         /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
         /// <param name="duration">Specify <paramref name="duration"/> of audio data you need. If you create recogize frigerprint, defaults to 12 seconds, if you create db frigerprint, it is ignored</param>
         /// <param name="isDB"><see langword="true"/> to create db frigerprint</param>
-        /// <param name="minFilterEnergy"></param>
-        /// <param name="silenceEnergyThreshold"></param>
-        /// <param name="silenceRateThreshold"></param>
+        /// <param name="minFilterEnergy">The minimum of filter energy.</param>
+        /// <param name="silenceEnergyThreshold">The silence energy threshold.</param>
+        /// <param name="silenceRateThreshold">The audio type.</param>
         /// <returns>A <see cref="byte"/>[] that represents ACRCloud Fingerprint</returns>
         public static byte[] CreateFingerprintByFile(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB = false,
                                                      int minFilterEnergy = DefaultMinFilterEnergy,
@@ -187,6 +146,7 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.CreateFingerprint(fileBuffer, fileBuffer.Length, (int)startTime.TotalSeconds, (int)duration.TotalSeconds, isDB, minFilterEnergy, silenceEnergyThreshold, silenceRateThreshold, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
+
         /// <summary>
         /// Create ACRCloud Humming Fingerprint by wav audio buffer(RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)
         /// </summary>
@@ -198,25 +158,19 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.CreateHummingFingerprint(pcmBuffer, pcmBuffer.Length, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
-        /// <summary>
-        /// Create ACRCloud Humming Fingerprint by file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Humming Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateHummingFingerprintByFile(string, TimeSpan)"/>
         public static byte[] CreateHummingFingerprintByFile(string filePath)
         {
             return CreateHummingFingerprintByFile(filePath, default);
         }
-        /// <summary>
-        /// Create ACRCloud Humming Fingerprint by file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Humming Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateHummingFingerprintByFile(string, TimeSpan, TimeSpan)"/>
         public static byte[] CreateHummingFingerprintByFile(string filePath, TimeSpan startTime)
         {
             return CreateHummingFingerprintByFile(filePath, startTime, TimeSpan.FromSeconds(DefaultDurationSeconds));
         }
+
         /// <summary>
         /// Create ACRCloud Humming Fingerprint by file path of most audio/video file.
         /// </summary>
@@ -230,25 +184,19 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.CreateHummingFingerprint(filePath, (int)startTime.TotalSeconds, (int)duration.TotalSeconds, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
-        /// <summary>
-        /// Create ACRCloud Humming Fingerprint by file buffer of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Humming Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateHummingFingerprintByFile(byte[], TimeSpan)"/>
         public static byte[] CreateHummingFingerprintByFile(byte[] fileBuffer)
         {
             return CreateHummingFingerprintByFile(fileBuffer, default);
         }
-        /// <summary>
-        /// Create ACRCloud Humming Fingerprint by file buffer of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <returns>A <see cref="byte"/>[] that represents ACRCloud Humming Fingerprint</returns>
+
+        /// <inheritdoc cref="CreateHummingFingerprintByFile(byte[], TimeSpan, TimeSpan)"/>
         public static byte[] CreateHummingFingerprintByFile(byte[] fileBuffer, TimeSpan startTime)
         {
             return CreateHummingFingerprintByFile(fileBuffer, startTime, TimeSpan.FromSeconds(DefaultDurationSeconds));
         }
+
         /// <summary>
         /// Create ACRCloud Humming Fingerprint by file buffer of most audio/video file.
         /// </summary>
@@ -262,25 +210,19 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.CreateHummingFingerprint(fileBuffer, fileBuffer.Length, (int)startTime.TotalSeconds, (int)duration.TotalSeconds, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
-        /// <summary>
-        /// Decode audio from file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <returns>A <see cref="byte"/>[] that represents audio data(formatter:RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)</returns>
+
+        /// <inheritdoc cref="DecodeAudio(string, TimeSpan)"/>
         public static byte[] DecodeAudio(string filePath)
         {
             return DecodeAudio(filePath, default);
         }
-        /// <summary>
-        /// Decode audio from file path of most audio/video file.
-        /// </summary>
-        /// <param name="filePath">The file path</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <returns>A <see cref="byte"/>[] that represents audio data(formatter:RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)</returns>
+
+        /// <inheritdoc cref="DecodeAudio(string, TimeSpan, TimeSpan)"/>
         public static byte[] DecodeAudio(string filePath, TimeSpan startTime)
         {
             return DecodeAudio(filePath, startTime, TimeSpan.FromSeconds(DefaultDurationSeconds));
         }
+
         /// <summary>
         /// Decode audio from file path of most audio/video file.
         /// </summary>
@@ -294,25 +236,19 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.DecodeAudio(filePath, (int)startTime.TotalSeconds, (int)duration.TotalSeconds, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
-        /// <summary>
-        /// Decode audio from file path of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <returns>A <see cref="byte"/>[] that represents audio data(formatter:RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)</returns>
+
+        /// <inheritdoc cref="DecodeAudio(byte[], TimeSpan)"/>
         public static byte[] DecodeAudio(byte[] fileBuffer)
         {
             return DecodeAudio(fileBuffer, default);
         }
-        /// <summary>
-        /// Decode audio from file path of most audio/video file.
-        /// </summary>
-        /// <param name="fileBuffer">A <see cref="byte"/>[] of input file</param>
-        /// <param name="startTime">Skip <paramref name="startTime"/> from the beginning of the file</param>
-        /// <returns>A <see cref="byte"/>[] that represents audio data(formatter:RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)</returns>
+
+        /// <inheritdoc cref="DecodeAudio(byte[], TimeSpan, TimeSpan)"/>
         public static byte[] DecodeAudio(byte[] fileBuffer, TimeSpan startTime)
         {
             return DecodeAudio(fileBuffer, startTime, TimeSpan.FromSeconds(DefaultDurationSeconds));
         }
+
         /// <summary>
         /// Decode audio from file path of most audio/video file.
         /// </summary>
@@ -326,6 +262,7 @@ namespace ACRCloudSdkCore
             int fpBufferLength = NativeMethods.DecodeAudio(fileBuffer, fileBuffer.Length, (int)startTime.TotalSeconds, (int)duration.TotalSeconds, out byte* fpBufferPtr);
             return CreateBufferAndFreePtr(fpBufferPtr, fpBufferLength);
         }
+
         /// <summary>
         /// Get duration from file buffer of most audio/video file.
         /// </summary>
@@ -341,6 +278,7 @@ namespace ACRCloudSdkCore
             }
             return TimeSpan.FromMilliseconds(ms);
         }
+
         /// <summary>
         /// Set whether the debug output is printed.
         /// </summary>

@@ -33,7 +33,7 @@ namespace ACRCloudSdkCore.Extensions
         /// <param name="content">The contents of the HTTP message.</param>
         /// <param name="token">A <see cref="CancellationToken"/> which may be used to cancel the request operation.</param>
         /// <inheritdoc cref="HttpClient.SendAsync(HttpRequestMessage, CancellationToken)"/>
-        public static async Task<HttpResponseMessage> SendRequestAsync(this HttpClient client, HttpMethod method, Uri uri, HttpContent? content, CancellationToken token = default)
+        public static async Task<HttpResponseMessage> SendAsync(this HttpClient client, HttpMethod method, Uri uri, HttpContent? content, CancellationToken token = default)
         {
             using HttpRequestMessage request = new HttpRequestMessage(method, uri)
             {
@@ -62,8 +62,8 @@ namespace ACRCloudSdkCore.Extensions
             return await response.Content.ReadAsStringAsync(token);
         }
 #else
-#pragma warning disable IDE0060 // Remove unused parameter
 #pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0060 // Remove unused parameter
         /// <param name="responseTask">An asynchronous operation that represents the HTTP response.</param>
         /// <param name="token">The <paramref name="token"/> is ignored since <see cref="HttpContent.ReadAsByteArrayAsync()"/> has no reload that uses <see cref="CancellationToken"/>.</param>
         /// <inheritdoc cref="HttpContent.ReadAsByteArrayAsync()"/>

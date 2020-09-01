@@ -8,9 +8,9 @@
     <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
     <NoWin32Manifest>true</NoWin32Manifest>
-    <Version>1.0.0.3</Version>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
+    <Version>1.0.0.4</Version>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
+    <FileVersion>1.0.0.4</FileVersion>
     <Authors>Executor</Authors>
     <Company>Executor</Company>
     <Copyright>Copyright © Executor 2020</Copyright>
@@ -18,7 +18,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Executor-Cheng/ACRCloudSdkCore</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <RepositoryUrl>https://github.com/Executor-Cheng/ACRCloudSdkCore.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Executor-Cheng/ACRCloudSdkCore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

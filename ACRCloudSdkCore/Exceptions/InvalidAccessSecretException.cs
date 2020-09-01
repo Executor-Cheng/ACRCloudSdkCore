@@ -7,17 +7,19 @@ namespace ACRCloudSdkCore.Exceptions
     /// </summary>
     public class InvalidAccessSecretException : Exception
     {
+        private const string DefaultMessage = "Invalid accessSecret.";
+
         /// <summary>
         /// Gets the value of the <see cref="ACRCloudOptions.AccessSecret"/> that caused the exception.
         /// </summary>
         public string? AccessSecret { get; }
 
-        public InvalidAccessSecretException() : this(null, "Invalid accessSecret.")
+        public InvalidAccessSecretException() : this(null, DefaultMessage)
         {
 
         }
 
-        public InvalidAccessSecretException(string? accessSecret) : this(accessSecret, "Invalid accessSecret.", null)
+        public InvalidAccessSecretException(string? accessSecret) : this(accessSecret, DefaultMessage, null)
         {
 
         }
