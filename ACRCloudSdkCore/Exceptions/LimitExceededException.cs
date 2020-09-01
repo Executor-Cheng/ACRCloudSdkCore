@@ -7,7 +7,9 @@ namespace ACRCloudSdkCore.Exceptions
     /// </summary>
     public class LimitExceededException : Exception
     {
-        public LimitExceededException() : this("Limit exceeded.")
+        private const string DefaultMessage = "Limit exceeded.";
+
+        public LimitExceededException() : this(DefaultMessage)
         {
 
         }

@@ -2,19 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using ACRCloudSdkCore.Extensions;
+using System.Threading;
 #if NETSTANDARD2_0
 using Newtonsoft.Json.Linq;
 #else
 using System.Text.Json;
 #endif
 
+#pragma warning disable CS1573 // Parameter <parameter> has no matching param tag in the XML comment for <method> (but other parameters do)
 namespace ACRCloudSdkCore
 {
     /// <summary>
@@ -45,7 +45,16 @@ namespace ACRCloudSdkCore
         public ACRCloudRecognizer(ACRCloudOptions options)
             => Options = options;
 
-        public Task<ACRCloudRecognizeResult?> RecognizeAsync(byte[] pcmBuffer, RecognizeType type = DefaultRecognizeType)
+        /// <summary>
+        /// Recognizes the wav audio as an asynchronous operation.
+        /// </summary>
+        /// <exception cref="HttpRequestException"/>
+        /// <param name="type">The audio type.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> which may be used to cancel the recognize operation.</param>
+        /// <returns>A task that represents the asynchronous deserialize operation.</returns>
+        /// <inheritdoc cref="CreateResultAsync(Task{HttpResponseMessage})"/>
+        /// <inheritdoc cref="ACRCloudExtractTools.CreateHummingFingerprint(byte[])"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeAsync(byte[] pcmBuffer, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
             IEnumerable<KeyValuePair<string?, string?>> getContents()
             {
@@ -63,35 +72,49 @@ namespace ACRCloudSdkCore
                 }
             }
             FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content, token);
             return CreateResultAsync(response);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(string, TimeSpan, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(filePath, default, type);
+            return RecognizeByFileAsync(filePath, default, type, token);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(string, TimeSpan, TimeSpan, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(filePath, startTime, TimeSpan.FromSeconds(ACRCloudExtractTools.DefaultDurationSeconds), type);
+            return RecognizeByFileAsync(filePath, startTime, TimeSpan.FromSeconds(ACRCloudExtractTools.DefaultDurationSeconds), type, token);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(string, TimeSpan, TimeSpan, bool, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(filePath, startTime, duration, false, type);
+            return RecognizeByFileAsync(filePath, startTime, duration, false, type, token);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(string, TimeSpan, TimeSpan, bool, int, int, float, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(filePath, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold, type);
+            return RecognizeByFileAsync(filePath, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold, type, token);
         }
 
+        /// <summary>
+        /// Recognizes the audio file as an asynchronous operation.
+        /// </summary>
+        /// <exception cref="HttpRequestException"/>
+        /// <param name="type">The audio type.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> which may be used to cancel the recognize operation.</param>
+        /// <returns>A task that represents the asynchronous deserialize operation.</returns>
+        /// <inheritdoc cref="ACRCloudExtractTools.CreateFingerprintByFile(string, TimeSpan, TimeSpan, bool, int, int, float)"/>
+        /// <inheritdoc cref="CreateResultAsync(Task{HttpResponseMessage})"/>
         public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(string filePath, TimeSpan startTime, TimeSpan duration, bool isDB,
                                                                   int minFilterEnergy = DefaultMinFilterEnergy,
                                                                   int silenceEnergyThreshold = DefaultSilenceEnergyThreshold,
                                                                   float silenceRateThreshold = DefaultSilenceRateThreshold,
-                                                                  RecognizeType type = DefaultRecognizeType)
+                                                                  RecognizeType type = DefaultRecognizeType,
+                                                                  CancellationToken token = default)
         {
             IEnumerable<KeyValuePair<string?, string?>> getContents()
             {
@@ -109,35 +132,49 @@ namespace ACRCloudSdkCore
                 }
             }
             FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content, token);
             return CreateResultAsync(response);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(byte[], TimeSpan, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(fileBuffer, default, type);
+            return RecognizeByFileAsync(fileBuffer, default, type, token);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(byte[], TimeSpan, TimeSpan, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(fileBuffer, startTime, TimeSpan.FromSeconds(ACRCloudExtractTools.DefaultDurationSeconds), type);
+            return RecognizeByFileAsync(fileBuffer, startTime, TimeSpan.FromSeconds(ACRCloudExtractTools.DefaultDurationSeconds), type, token);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(byte[], TimeSpan, TimeSpan, bool, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(fileBuffer, startTime, duration, false, type);
+            return RecognizeByFileAsync(fileBuffer, startTime, duration, false, type, token);
         }
 
-        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType)
+        /// <inheritdoc cref="RecognizeByFileAsync(byte[], TimeSpan, TimeSpan, bool, int, int, float, RecognizeType, CancellationToken)"/>
+        public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB, RecognizeType type = DefaultRecognizeType, CancellationToken token = default)
         {
-            return RecognizeByFileAsync(fileBuffer, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold, type);
+            return RecognizeByFileAsync(fileBuffer, startTime, duration, isDB, DefaultMinFilterEnergy, DefaultSilenceEnergyThreshold, DefaultSilenceRateThreshold, type, token);
         }
 
+        /// <summary>
+        /// Recognizes the audio as an asynchronous operation.
+        /// </summary>
+        /// <exception cref="HttpRequestException"/>
+        /// <param name="type">The audio type.</param>
+        /// <param name="token">A <see cref="CancellationToken"/> which may be used to cancel the recognize operation.</param>
+        /// <returns>A task that represents the asynchronous deserialize operation.</returns>
+        /// <inheritdoc cref="ACRCloudExtractTools.CreateFingerprintByFile(byte[], TimeSpan, TimeSpan, bool, int, int, float)"/>
+        /// <inheritdoc cref="CreateResultAsync(Task{HttpResponseMessage})"/>
         public Task<ACRCloudRecognizeResult?> RecognizeByFileAsync(byte[] fileBuffer, TimeSpan startTime, TimeSpan duration, bool isDB,
                                                                   int minFilterEnergy = DefaultMinFilterEnergy,
                                                                   int silenceEnergyThreshold = DefaultSilenceEnergyThreshold,
                                                                   float silenceRateThreshold = DefaultSilenceRateThreshold,
-                                                                  RecognizeType type = DefaultRecognizeType)
+                                                                  RecognizeType type = DefaultRecognizeType,
+                                                                  CancellationToken token = default)
         {
             IEnumerable<KeyValuePair<string?, string?>> getContents()
             {
@@ -155,7 +192,7 @@ namespace ACRCloudSdkCore
                 }
             }
             FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content, token);
             return CreateResultAsync(response);
         }
 
@@ -171,6 +208,10 @@ namespace ACRCloudSdkCore
             yield return new KeyValuePair<string?, string?>("timestamp", timeStamp);
         }
 
+        /// <exception cref="InvalidAccessKeyException"/>
+        /// <exception cref="InvalidAccessSecretException"/>
+        /// <exception cref="LimitExceededException"/>
+        /// <exception cref="UnknownResponseException"/>
         private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> response) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
         {
 #if NETSTANDARD2_0
@@ -245,6 +286,7 @@ namespace ACRCloudSdkCore
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Client.Dispose();

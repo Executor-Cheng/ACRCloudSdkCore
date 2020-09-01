@@ -7,6 +7,8 @@ namespace ACRCloudSdkCore.Exceptions
     /// </summary>
     public sealed class UnknownResponseException : Exception
     {
+        private const string DefaultMessage = "Unknown response.";
+
         /// <summary>
         /// Gets the server responded message.
         /// </summary>
@@ -14,11 +16,11 @@ namespace ACRCloudSdkCore.Exceptions
 
         public UnknownResponseException() { }
 
-        public UnknownResponseException(string? response) : this(response, "Unknown response.", null) { }
+        public UnknownResponseException(string? response) : this(response, DefaultMessage, null) { }
 
         public UnknownResponseException(string? response, string message) : this(response, message, null) { }
 
-        public UnknownResponseException(string? response, Exception? innerException) : this(response, "Unknown response.", innerException) { }
+        public UnknownResponseException(string? response, Exception? innerException) : this(response, DefaultMessage, innerException) { }
 
         public UnknownResponseException(string? response, string message, Exception? innerException) : base(message, innerException)
             => Response = response;

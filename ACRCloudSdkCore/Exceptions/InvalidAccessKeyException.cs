@@ -7,17 +7,19 @@ namespace ACRCloudSdkCore.Exceptions
     /// </summary>
     public class InvalidAccessKeyException : Exception
     {
+        private const string DefaultMessage = "Invalid AccessKey.";
+
         /// <summary>
         /// Gets the value of the <see cref="ACRCloudOptions.AccessKey"/> that caused the exception.
         /// </summary>
         public string? AccessKey { get; }
 
-        public InvalidAccessKeyException() : this(null, "Invalid AccessKey.")
+        public InvalidAccessKeyException() : this(null, DefaultMessage)
         {
 
         }
 
-        public InvalidAccessKeyException(string? accessKey) : this(accessKey, "Invalid AccessKey.", null)
+        public InvalidAccessKeyException(string? accessKey) : this(accessKey, DefaultMessage, null)
         {
 
         }
