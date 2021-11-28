@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netcoreapp3.1;netcoreapp3.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net5.0;netcoreapp3.1;netcoreapp3.0;netstandard2.1;netstandard2.0;netframework462;netframework461</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>preview</LangVersion>
     <RootNamespace>ACRCloudSdkCore</RootNamespace>
@@ -28,16 +28,28 @@
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netframework'))">
+    <Reference Include="System.Net.Http"/>
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or $(TargetFramework.StartsWith('netframework'))">
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
+  <ItemGroup Condition="'$(NETCoreSdkRuntimeIdentifier)' == 'win-x86' or '$(NETCoreSdkRuntimeIdentifier)' == 'win-x64'">
+    <PackageReference Include="ACRCloudSdkCore.NativeAssets.Win32" Version="1.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NETCoreSdkRuntimeIdentifier)' == 'linux-x64'">
+    <PackageReference Include="ACRCloudSdkCore.NativeAssets.Linux" Version="1.*"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NETCoreSdkRuntimeIdentifier)' == 'osx-x86' or '$(NETCoreSdkRuntimeIdentifier)' == 'osx-x64'">
+    <PackageReference Include="ACRCloudSdkCore.NativeAssets.MacOS" Version="1.*" />
   </ItemGroup>
 
 </Project>

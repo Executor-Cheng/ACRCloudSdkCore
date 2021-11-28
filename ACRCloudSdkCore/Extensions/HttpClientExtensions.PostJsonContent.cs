@@ -3,7 +3,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
 using System.Text;
 using Newtonsoft.Json;
 #else
@@ -15,7 +15,7 @@ namespace ACRCloudSdkCore.Extensions
 {
     public static partial class HttpClientExtensions
     {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
         /// <param name="value">The value to be serialized to <see cref="HttpContent"/>.</param>
         /// <param name="options">A <see cref="JsonSerializerSettings"/> to be used while serializing the <paramref name="value"/> to <see cref="HttpContent"/>.</param>
         /// <inheritdoc cref="PostAsync(HttpClient, Uri, byte[], CancellationToken)"/>

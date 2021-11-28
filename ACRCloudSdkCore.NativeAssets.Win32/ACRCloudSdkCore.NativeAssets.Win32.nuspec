@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>ACRCloudSdkCore.NativeAssets.Win32</id>
+        <title>ACRCloudSdkCore - Native Assets for Win32</title>
+        <version>1.0.0</version>
+        <description>ACRCloud fingerprint extract tools</description>
+        <summary>ACRCloud fingerprint extract tools</summary>
+        <authors>ACRCloud, Executor</authors>
+        <copyright>Copyright © ACRCloud 2021</copyright>
+        <projectUrl>https://github.com/Executor-Cheng/ACRCloudSdkCore</projectUrl>
+
+        <dependencies>
+            <group targetFramework="net461"/>
+            <group targetFramework="net462"/>
+            <group targetFramework="netstandard2.0"/>
+        </dependencies>
+    </metadata>
+    
+    <files>
+        <file src="runtimes/win-x64/native/libacrcloud_extr_tool.dll" target="runtimes/win-x64/native/"/>
+        <file src="runtimes/win-x86/native/libacrcloud_extr_tool.dll" target="runtimes/win-x86/native/"/>
+        <file src="ACRCloudSdkCore.NativeAssets.Win32.props" target="build/net461/"/>
+        <file src="ACRCloudSdkCore.NativeAssets.Win32.props" target="buildTransitive/net461/"/>
+        <file src="ACRCloudSdkCore.NativeAssets.Win32.props" target="build/net462/"/>
+        <file src="ACRCloudSdkCore.NativeAssets.Win32.props" target="buildTransitive/net462/"/>
+
+        <file src="_._" target="lib/net461/_._" />
+        <file src="_._" target="lib/net462/_._" />
+        <file src="_._" target="lib/netstandard2.0/_._" />
+    </files>
+</package>
