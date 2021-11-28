@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #else
@@ -85,7 +85,7 @@ namespace ACRCloudSdkCore.Extensions
 #pragma warning restore IDE0079
 #endif
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
         /// <inheritdoc cref="GetObjectAsync{T}(Task{HttpResponseMessage}, JsonSerializerSettings?, CancellationToken)"/>
         public static Task<T> GetObjectAsync<T>(this Task<HttpResponseMessage> responseTask, CancellationToken token = default)
         {

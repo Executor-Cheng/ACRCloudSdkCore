@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
 using Newtonsoft.Json.Linq;
 #else
 using System.Text.Json;
@@ -48,7 +48,7 @@ namespace ACRCloudSdkCore
         /// Gets the server time of sending results.
         /// </summary>
         public DateTime Time { get; }
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
         /// <summary>
         /// Gets the server responded message, represented by <see cref="JObject"/>.
         /// </summary>
@@ -62,7 +62,7 @@ namespace ACRCloudSdkCore
         private string DebuggerDisplay => $"{string.Join(',', Artists)} - {Title} {(string.IsNullOrEmpty(Album) ? "" : $"{{{Album}}} ")}[{PlayOffset.GetValueOrDefault():g}/{Duration.GetValueOrDefault():g}]";
 #endif
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
         public ACRCloudRecognizeResult(string id, string title, string[] artists, string album, TimeSpan? playOffset, TimeSpan? duration, int score, DateTime time, JObject responseRoot)
 #else
         public ACRCloudRecognizeResult(string id, string title, string[] artists, string album, TimeSpan? playOffset, TimeSpan? duration, int score, DateTime time, JsonElement responseRoot)

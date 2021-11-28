@@ -1,17 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable CA1401 // P/Invokes should not be visible
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
 namespace ACRCloudSdkCore
 {
     /// <summary>
     /// This class contains methods that interop with libacrcloud_extr_tool.
     /// </summary>
-    public static unsafe class ACRCloudExtractTools
+    public static unsafe partial class ACRCloudExtractTools
     {
         public const int DefaultMinFilterEnergy = 50;
 
@@ -23,6 +19,17 @@ namespace ACRCloudSdkCore
 
         static ACRCloudExtractTools()
         {
+#if NETFRAMEWORK
+            string path = IntPtr.Size == 4 ? $@"x86\{NativeMethods.ExtractToolName}.dll" : $@"x64\{NativeMethods.ExtractToolName}.dll";
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException("Unable to find native asset.", path);
+            }
+            if (NativeMethods.Win32.LoadLibrary(path) == null)
+            {
+                throw new BadImageFormatException("Format of the executable (.exe) or library (.dll) is invalid.");
+            }
+#endif
             NativeMethods.Init();
         }
 
@@ -295,7 +302,7 @@ namespace ACRCloudSdkCore
                 throw new InvalidDataException();
             }
             byte[] fpBuffer = new byte[fpBufferLength];
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
             fixed (byte* localFpBufferPtr = fpBuffer)
             {
                 Buffer.MemoryCopy(fpBufferPtr, localFpBufferPtr, fpBufferLength, fpBufferLength);
@@ -327,45 +334,6 @@ namespace ACRCloudSdkCore
             {
                 throw new FileNotFoundException($"Could not find file '{filePath}'.", filePath);
             }
-        }
-
-        private static unsafe class NativeMethods
-        {
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "create_fingerprint")]
-            public static extern int CreateFingerprint(byte[] pcm_buffer, int pcm_buffer_len, [MarshalAs(UnmanagedType.I1)]bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "create_fingerprint_by_file")]
-            public static extern int CreateFingerprint(string file_path, int start_time_seconds, int audio_len_seconds, [MarshalAs(UnmanagedType.I1)]bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "create_fingerprint_by_filebuffer")]
-            public static extern int CreateFingerprint(byte[] file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, [MarshalAs(UnmanagedType.I1)]bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "create_humming_fingerprint")]
-            public static extern int CreateHummingFingerprint(byte[] pcm_buffer, int pcm_buffer_len, out byte* fps_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "create_humming_fingerprint_by_file", CharSet = CharSet.Ansi)]
-            public static extern int CreateHummingFingerprint(string file_path, int start_time_seconds, int audio_len_seconds, out byte* fps_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "create_humming_fingerprint_by_filebuffer")]
-            public static extern int CreateHummingFingerprint(byte[] file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, out byte* fps_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "decode_audio_by_file", CharSet = CharSet.Ansi)]
-            public static extern int DecodeAudio(string file_path, int start_time_seconds, int audio_len_seconds, out byte* audio_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "decode_audio_by_filebuffer")]
-            public static extern int DecodeAudio(byte[] file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, out byte* audio_buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "acr_free")]
-            public static extern void Free(byte* buffer);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "get_duration_ms_by_file", CharSet = CharSet.Ansi)]
-            public static extern int GetDuration(string filePath);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "acr_set_debug")]
-            public static extern void SetDebug([MarshalAs(UnmanagedType.I1)]bool isDebug);
-
-            [DllImport("libacrcloud_extr_tool.dll", EntryPoint = "acr_init")]
-            public static extern void Init();
         }
     }
 }

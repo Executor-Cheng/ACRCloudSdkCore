@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+    <PropertyGroup>
+        <ShouldIncludeACRCloudNativeTools Condition=" '$(ShouldIncludeACRCloudNativeTools)' == '' ">True</ShouldIncludeACRCloudNativeTools>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(ShouldIncludeACRCloudNativeTools)' != 'False'">
+        <_NativeExtrToolFile Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x86\native\libacrcloud_extr_tool*.dll" Dir="x86\"/>
+        <_NativeExtrToolFile Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\libacrcloud_extr_tool*.dll" Dir="x64\"/>
+        <Content Include="@(_NativeExtrToolFile)" Link="%(Dir)%(Filename)%(Extension)" Visible="False" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+</Project>

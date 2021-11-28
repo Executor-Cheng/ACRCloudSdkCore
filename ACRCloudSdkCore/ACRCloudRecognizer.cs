@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ACRCloudSdkCore.Extensions;
 using System.Threading;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
 using Newtonsoft.Json.Linq;
 #else
 using System.Text.Json;
@@ -214,7 +214,7 @@ namespace ACRCloudSdkCore
         /// <exception cref="UnknownResponseException"/>
         private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> response) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
         {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
             JObject root = (JObject)await response.GetJsonAsync();
             JToken status = root["status"]!;
             switch (status["code"]!.ToObject<int>())
@@ -277,7 +277,7 @@ namespace ACRCloudSdkCore
                     }
                 default:
                     {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
                         throw new UnknownResponseException(root.ToString(0));
 #else
                         throw new UnknownResponseException(root.GetRawText());
