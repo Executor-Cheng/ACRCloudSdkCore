@@ -7,33 +7,33 @@ namespace ACRCloudSdkCore
 {
     public static unsafe partial class ACRCloudExtractTools
     {
-        private static unsafe class NativeMethods
+        public static unsafe class NativeMethods
         {
             public const string ExtractToolName = "libacrcloud_extr_tool";
 
             [DllImport(ExtractToolName, EntryPoint = "create_fingerprint")]
-            public static extern int CreateFingerprint(byte[] pcm_buffer, int pcm_buffer_len, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
+            public static extern int CreateFingerprint(ref byte pcm_buffer, int pcm_buffer_len, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "create_fingerprint_by_file")]
             public static extern int CreateFingerprint(string file_path, int start_time_seconds, int audio_len_seconds, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "create_fingerprint_by_filebuffer")]
-            public static extern int CreateFingerprint(byte[] file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
+            public static extern int CreateFingerprint(ref byte file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "create_humming_fingerprint")]
-            public static extern int CreateHummingFingerprint(byte[] pcm_buffer, int pcm_buffer_len, out byte* fps_buffer);
+            public static extern int CreateHummingFingerprint(ref byte pcm_buffer, int pcm_buffer_len, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "create_humming_fingerprint_by_file", CharSet = CharSet.Ansi)]
             public static extern int CreateHummingFingerprint(string file_path, int start_time_seconds, int audio_len_seconds, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "create_humming_fingerprint_by_filebuffer")]
-            public static extern int CreateHummingFingerprint(byte[] file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, out byte* fps_buffer);
+            public static extern int CreateHummingFingerprint(ref byte file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "decode_audio_by_file", CharSet = CharSet.Ansi)]
             public static extern int DecodeAudio(string file_path, int start_time_seconds, int audio_len_seconds, out byte* audio_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "decode_audio_by_filebuffer")]
-            public static extern int DecodeAudio(byte[] file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, out byte* audio_buffer);
+            public static extern int DecodeAudio(ref byte file_buffer, int file_buffer_len, int start_time_seconds, int audio_len_seconds, out byte* audio_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "acr_free")]
             public static extern void Free(byte* buffer);
