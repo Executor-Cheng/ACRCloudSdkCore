@@ -103,7 +103,7 @@ namespace ACRCloudSdkCore
                 }
             }
             FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content, token);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", content, token);
             return CreateResultAsync(response);
         }
     }

@@ -179,7 +179,7 @@ namespace ACRCloudSdkCore.Extensions
         public static async Task<T> GetObjectAsync<T>(this Task<HttpResponseMessage> responseTask, JsonSerializerOptions? options, CancellationToken token = default)
         {
             using HttpResponseMessage response = await responseTask.ConfigureAwait(false);
-            return await response.Content.ReadFromJsonAsync<T>(options, token);
+            return (await response.Content.ReadFromJsonAsync<T>(options, token))!;
         }
 
         /// <inheritdoc cref="GetObjectAsync(Task{HttpResponseMessage}, Type, JsonSerializerOptions?, CancellationToken)"/>
@@ -224,30 +224,6 @@ namespace ACRCloudSdkCore.Extensions
                 return await JsonDocument.ParseAsync(stream, options, token);
             }
         }
-
-        /// <summary>
-        /// Sets Content-Type in response to application/json.
-        /// </summary>
-        /// <param name="responseTask">An asynchronous operation that represents the HTTP response.</param>
-        public static Task<HttpResponseMessage> ForceJson(this Task<HttpResponseMessage> responseTask)
-        {
-            return responseTask.ContinueWith(p =>
-            {
-                if (p.IsCompletedSuccessfully) // treats response as json
-                {
-                    HttpContentHeaders headers = p.Result.Content.Headers;
-                    if (headers.ContentType == null)
-                    {
-                        headers.ContentType = DefaultJsonMediaType;
-                    }
-                    else if (headers.ContentType.MediaType != "application/json")
-                    {
-                        headers.ContentType.MediaType = "application/json";
-                    }
-                }
-                return p;
-            }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
-        }
 #else
         /// <inheritdoc cref="GetObjectAsync{T}(Task{HttpResponseMessage}, JsonSerializerOptions?, CancellationToken)"/>
         public static Task<T> GetObjectAsync<T>(this Task<HttpResponseMessage> responseTask, CancellationToken token = default)
@@ -268,7 +244,7 @@ namespace ACRCloudSdkCore.Extensions
         {
             using HttpResponseMessage response = await responseTask.ConfigureAwait(false);
             using Stream stream = await response.Content.ReadAsStreamAsync();
-            return await JsonSerializer.DeserializeAsync<T>(stream, options, token);
+            return (await JsonSerializer.DeserializeAsync<T>(stream, options, token))!;
         }
 
         /// <inheritdoc cref="GetObjectAsync(Task{HttpResponseMessage}, Type, JsonSerializerOptions?, CancellationToken)"/>
@@ -310,5 +286,54 @@ namespace ACRCloudSdkCore.Extensions
             return await JsonDocument.ParseAsync(stream, options, token);
         }
 #endif
+
+        /// <summary>
+        /// Sets Content-Type in response to application/json.
+        /// </summary>
+        /// <param name="responseTask">An asynchronous operation that represents the HTTP response.</param>
+        public static Task<HttpResponseMessage> ForceJson(this Task<HttpResponseMessage> responseTask)
+        {
+            return responseTask.ContinueWith(p =>
+            {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+                if (p.IsCompletedSuccessfully) // treats response as json
+#else
+                if (p.Status == TaskStatus.RanToCompletion)
+#endif
+                {
+                    HttpContentHeaders headers = p.Result.Content.Headers;
+                    if (headers.ContentType == null)
+                    {
+                        headers.ContentType = DefaultJsonMediaType;
+                    }
+                    else if (headers.ContentType.MediaType != "application/json")
+                    {
+                        headers.ContentType.MediaType = "application/json";
+                    }
+                }
+                return p;
+            }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
+        }
+
+        /// <summary>
+        /// Throws an exception if the <see cref="HttpResponseMessage.IsSuccessStatusCode"/> property for the HTTP response is false.
+        /// </summary>
+        /// <exception cref="HttpRequestException"/>
+        /// <param name="responseTask">An asynchronous operation that represents the HTTP response.</param>
+        public static Task<HttpResponseMessage> EnsureSuccessStatusCode(this Task<HttpResponseMessage> responseTask)
+        {
+            return responseTask.ContinueWith(p =>
+            {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+                if (p.IsCompletedSuccessfully) // treats response as json
+#else
+                if (p.Status == TaskStatus.RanToCompletion)
+#endif
+                {
+                    p.Result.EnsureSuccessStatusCode();
+                }
+                return p;
+            }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
+        }
     }
 }

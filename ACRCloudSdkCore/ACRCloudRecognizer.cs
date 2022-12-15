@@ -45,9 +45,9 @@ namespace ACRCloudSdkCore
 
         private IEnumerable<KeyValuePair<string?, string?>> GetCommonContents()
         {
-            string timeStamp = ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000).ToString();
+            string timeStamp = ((DateTime.UtcNow.Ticks - 621355968000000000) / 10000).ToString();
             using HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(Options.AccessSecret));
-            string signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes($"POST\n/v2/identify\n{Options.AccessKey}\n{DefaultDataType}\n{DefaultSignVersion}\n{timeStamp}")));
+            string signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes($"POST\n/v1/identify\n{Options.AccessKey}\n{DefaultDataType}\n{DefaultSignVersion}\n{timeStamp}")));
             yield return new KeyValuePair<string?, string?>("access_key", Options.AccessKey);
             yield return DefaultDataTypeContent;
             yield return DefaultSignVersionContent;
@@ -59,16 +59,10 @@ namespace ACRCloudSdkCore
         /// <exception cref="InvalidAccessSecretException"/>
         /// <exception cref="LimitExceededException"/>
         /// <exception cref="UnknownResponseException"/>
-        private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> response) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
+        private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> responseTask) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
         {
-            HttpResponseMessage resp = await response;
-            if (resp.Content.Headers.ContentType?.MediaType != "application/json")
-            {
-                string content = await response.GetStringAsync();
-                throw new UnknownResponseException(content);
-            }
 #if NETSTANDARD2_0 || NETFRAMEWORK
-            JObject root = (JObject)await response.GetJsonAsync();
+            JObject root = (JObject)await responseTask.EnsureSuccessStatusCode().ForceJson().GetJsonAsync();
             JToken status = root["status"]!;
             switch (status["code"]!.ToObject<int>())
             {
@@ -91,7 +85,7 @@ namespace ACRCloudSdkCore
                             );
                     }
 #else
-            JsonElement root = await response.GetObjectAsync<JsonElement>(),
+            JsonElement root = await responseTask.EnsureSuccessStatusCode().ForceJson().GetObjectAsync<JsonElement>(),
                         status = root.GetProperty("status");
             switch (status.GetProperty("code").GetInt32())
             {
