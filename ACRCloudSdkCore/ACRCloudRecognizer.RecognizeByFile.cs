@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -37,6 +38,9 @@ namespace ACRCloudSdkCore
         /// <summary>
         /// Recognizes the audio file as an asynchronous operation.
         /// </summary>
+        /// <remarks>
+        /// When the <paramref name="filePath"/> contains kana, it will fail with <see cref="InvalidDataException"/>.
+        /// </remarks>
         /// <exception cref="HttpRequestException"/>
         /// <param name="type">The audio type.</param>
         /// <param name="token">A <see cref="CancellationToken"/> which may be used to cancel the recognize operation.</param>
@@ -66,7 +70,7 @@ namespace ACRCloudSdkCore
                 }
             }
             FormUrlEncodedContent content = new FormUrlEncodedContent(getContents().Concat(GetCommonContents()));
-            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v2/identify", content, token);
+            Task<HttpResponseMessage> response = Client.PostAsync($"http://{Options.Host}/v1/identify", content, token);
             return CreateResultAsync(response);
         }
     }

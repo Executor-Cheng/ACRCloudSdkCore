@@ -9,6 +9,7 @@ namespace ACRCloudSdkCore.Example
         {
             ACRCloudOptions options = new ACRCloudOptions("**Your host**", "**Your access key**", "**Your access secret**");
             ACRCloudRecognizer recognizer = new ACRCloudRecognizer(options);
+            // Using this reload will fail when the path contains kana
             ACRCloudRecognizeResult result = await recognizer.RecognizeByFileAsync(@"**filePath**");
             if (result == null)
             {

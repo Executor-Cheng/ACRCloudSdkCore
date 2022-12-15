@@ -14,7 +14,7 @@ namespace ACRCloudSdkCore
             [DllImport(ExtractToolName, EntryPoint = "create_fingerprint")]
             public static extern int CreateFingerprint(ref byte pcm_buffer, int pcm_buffer_len, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
 
-            [DllImport(ExtractToolName, EntryPoint = "create_fingerprint_by_file")]
+            [DllImport(ExtractToolName, EntryPoint = "create_fingerprint_by_file", CharSet = CharSet.Ansi)]
             public static extern int CreateFingerprint(string file_path, int start_time_seconds, int audio_len_seconds, [MarshalAs(UnmanagedType.I1)] bool is_db_fingerprint, int filter_energy_min, int silence_energy_threshold, float silence_rate_threshold, out byte* fps_buffer);
 
             [DllImport(ExtractToolName, EntryPoint = "create_fingerprint_by_filebuffer")]
