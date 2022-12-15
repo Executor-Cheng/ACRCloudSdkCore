@@ -61,6 +61,12 @@ namespace ACRCloudSdkCore
         /// <exception cref="UnknownResponseException"/>
         private async Task<ACRCloudRecognizeResult?> CreateResultAsync(Task<HttpResponseMessage> response) // Suppress all CS8602/CS8604 in JToken[string] / JToken.ToObject<T>
         {
+            HttpResponseMessage resp = await response;
+            if (resp.Content.Headers.ContentType?.MediaType != "application/json")
+            {
+                string content = await response.GetStringAsync();
+                throw new UnknownResponseException(content);
+            }
 #if NETSTANDARD2_0 || NETFRAMEWORK
             JObject root = (JObject)await response.GetJsonAsync();
             JToken status = root["status"]!;
